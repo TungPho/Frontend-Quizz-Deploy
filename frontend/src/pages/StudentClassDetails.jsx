@@ -16,6 +16,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const StudentClassDetails = () => {
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
+
   const [activeRooms, setActiveRooms] = useState([]);
   const [pdfDocuments, setPdfDocuments] = useState([]);
   const [selectedPdf, setSelectedPdf] = useState(null);
@@ -32,12 +35,13 @@ const StudentClassDetails = () => {
 
   const userName = localStorage.getItem("userName");
   const studentId = localStorage.getItem("studentId");
+
   const navigate = useNavigate();
 
   // request permission and recieved
   useEffect(() => {
     setSocket(
-      io("ws://localhost:3000", {
+      io(`${BACK_END_SOCKET_URL}`, {
         query: { userId: userID, role }, // Gửi userId và role khi kết nối
       })
     );
@@ -59,7 +63,7 @@ const StudentClassDetails = () => {
   useEffect(() => {
     const fetchExamProgress = async () => {
       const getExamReq = await fetch(
-        `http://localhost:3000/api/v1/exam_progress/${userID}`
+        `${BACK_END_LOCAL_URL}/exam_progress/${userID}`
       );
       const res = await getExamReq.json();
       console.log(res);
@@ -87,16 +91,14 @@ const StudentClassDetails = () => {
   // Fetch rooms and documents on component mount
   useEffect(() => {
     const fetchClass = async () => {
-      const req = await fetch(
-        `http://localhost:3000/api/v1/classes/${classId}`
-      );
+      const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${classId}`);
       const res = await req.json();
       setClassName(res.metadata.name);
     };
 
     const fetchDocuments = async () => {
       const req = await fetch(
-        `http://localhost:3000/api/v1/class_documents/${classId}`
+        `${BACK_END_LOCAL_URL}/class_documents/${classId}`
       );
       const res = await req.json();
       setPdfDocuments(res.metadata);

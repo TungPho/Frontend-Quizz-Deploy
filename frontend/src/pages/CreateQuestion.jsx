@@ -15,6 +15,7 @@ const CreateQuestion = () => {
   const { setState } = useContext(QuizzContext);
   const navigate = useNavigate();
   const userID = localStorage.getItem("userID");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const [answers, setAnswers] = useState([
     { text: "", isCorrect: false },
@@ -69,7 +70,7 @@ const CreateQuestion = () => {
     }
     // 1. Create the test first
     if (!testId) {
-      const req = await fetch("http://localhost:3000/api/v1/tests", {
+      const req = await fetch(`${BACK_END_LOCAL_URL}/tests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -83,7 +84,7 @@ const CreateQuestion = () => {
     }
 
     // 2. Add the question to that test
-    const req2 = await fetch("http://localhost:3000/api/v1/questions/", {
+    const req2 = await fetch(`${BACK_END_LOCAL_URL}/questions/`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -101,9 +102,7 @@ const CreateQuestion = () => {
 
   useEffect(() => {
     const fetchQuestion = async () => {
-      const req = await fetch(
-        `http://localhost:3000/api/v1/questions/${questionId}`
-      );
+      const req = await fetch(`${BACK_END_LOCAL_URL}/questions/${questionId}`);
       const res = await req.json();
       setQuestion(res.metadata.text);
       setAnswers(res.metadata.options);
@@ -118,19 +117,16 @@ const CreateQuestion = () => {
       toast.error("You must set at least 1 correct answer");
       return;
     }
-    const req = await fetch(
-      `http://localhost:3000/api/v1/questions/${questionId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: question,
-          options: answers,
-        }),
-      }
-    );
+    const req = await fetch(`${BACK_END_LOCAL_URL}/questions/${questionId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: question,
+        options: answers,
+      }),
+    });
     const res = await req.json();
     navigate(`/tests/${testId}`);
   };

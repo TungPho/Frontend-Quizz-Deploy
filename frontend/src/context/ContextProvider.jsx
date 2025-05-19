@@ -2,13 +2,16 @@
 import { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import io from "socket.io-client";
-const s = io(`ws://localhost:3000`);
 export const QuizzContext = createContext();
 const ContextProvider = (props) => {
   // role, token  and userID
   const [role, setRole] = useState("");
   const [state, setState] = useState("normal");
+  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
+
+  const s = io(`${BACK_END_SOCKET_URL}`);
   const [socket, setSocket] = useState(s);
+
   // for submissions
   const [submissions, setSubmissions] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -17,13 +20,14 @@ const ContextProvider = (props) => {
   const [isStartPermit, setIsStartPermit] = useState(false);
   // fetch notifications here
   const userID = localStorage.getItem("userID");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
       const reqNotifi = await fetch(
-        `http://localhost:3000/api/v1/notification/${userID}`
+        `${BACK_END_LOCAL_URL}/notification/${userID}`
       );
       const res = await reqNotifi.json();
       console.log(res.metadata);

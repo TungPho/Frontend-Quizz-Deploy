@@ -6,6 +6,8 @@ const SignUp = () => {
   const [formStep, setFormStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -43,7 +45,7 @@ const SignUp = () => {
       };
     }
 
-    const result = await fetch("http://localhost:3000/api/v1/users", {
+    const result = await fetch(`${BACK_END_LOCAL_URL}/users`, {
       body: JSON.stringify(user),
       headers: {
         "Content-Type": "application/json",

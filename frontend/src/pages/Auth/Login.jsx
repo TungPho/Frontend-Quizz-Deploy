@@ -9,6 +9,8 @@ const Login = () => {
   const { setSocket } = useContext(QuizzContext);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const navigate = useNavigate();
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
 
   const [formData, setFormData] = useState({
     email: "",
@@ -33,7 +35,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/api/v1/login", {
+      const response = await axios.post(`${BACK_END_LOCAL_URL}/login`, {
         email: formData.email,
         password: formData.password,
       });
@@ -49,7 +51,7 @@ const Login = () => {
       localStorage.setItem("studentId", res.student_id);
 
       setSocket(
-        io("ws://localhost:3000", {
+        io(`${BACK_END_SOCKET_URL}`, {
           query: { userId: res.id, role }, // Gửi userId và role khi kết nối
         })
       );
@@ -69,7 +71,7 @@ const Login = () => {
     try {
       // Gọi API để gửi yêu cầu reset password
       const result = await fetch(
-        "http://localhost:3000/api/v1/users/request-password-reset",
+        `${BACK_END_LOCAL_URL}/users/request-password-reset`,
         {
           headers: {
             "Content-Type": "application/json",

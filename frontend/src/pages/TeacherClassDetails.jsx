@@ -31,7 +31,8 @@ const TeacherClassDetails = () => {
 
   const [studentLength, setStudentLength] = useState(0);
   const [students, setStudents] = useState([]);
-  // const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
 
   const navigate = useNavigate();
 
@@ -39,11 +40,11 @@ const TeacherClassDetails = () => {
     socket.on("aceptedStudentJoinClass", async ({ studentId }) => {
       console.log(studentId);
       const foundStudent = await axios.get(
-        `http://localhost:3000/api/v1/users/${studentId}`
+        `${BACK_END_LOCAL_URL}/users/${studentId}`
       );
       const id = foundStudent.data.metadata.user_attributes.student_id;
       const addedStudentToClassReq = await axios.post(
-        `http://localhost:3000/api/v1/classes/${classId}`,
+        `${BACK_END_LOCAL_URL}/classes/${classId}`,
         {
           studentID: id,
         }
@@ -55,7 +56,7 @@ const TeacherClassDetails = () => {
 
   useEffect(() => {
     setSocket(
-      io("ws://localhost:3000", {
+      io(`${BACK_END_SOCKET_URL}`, {
         query: { userId: userID, role }, // Gửi userId và role khi kết nối
       })
     );
@@ -91,9 +92,7 @@ const TeacherClassDetails = () => {
 
   useEffect(() => {
     const fetchClass = async () => {
-      const req = await fetch(
-        `http://localhost:3000/api/v1/classes/${classId}`
-      );
+      const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${classId}`);
       const res = await req.json();
       setClass(res.metadata);
       setClassName(res.metadata.name);
@@ -103,7 +102,7 @@ const TeacherClassDetails = () => {
 
         // Fetch each student's details
         const studentPromises = res.metadata.students.map((studentId) =>
-          axios.get(`http://localhost:3000/api/v1/users/${studentId}`)
+          axios.get(`${BACK_END_LOCAL_URL}/users/${studentId}`)
         );
 
         try {
@@ -117,9 +116,7 @@ const TeacherClassDetails = () => {
     };
 
     const fetchTestByTeacherID = async () => {
-      const req = await fetch(
-        `http://localhost:3000/api/v1/tests-find/${userID}`
-      );
+      const req = await fetch(`${BACK_END_LOCAL_URL}/tests-find/${userID}`);
       const res = await req.json();
       setTests(res.metadata.foundTests);
     };

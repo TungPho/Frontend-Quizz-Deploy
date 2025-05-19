@@ -10,14 +10,13 @@ const MySubmission = () => {
   const { submissions, setSubmissions } = useContext(QuizzContext);
   const userID = localStorage.getItem("userID");
   const role = localStorage.getItem("role");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSubmissions = async () => {
-      const req = await fetch(
-        `http://localhost:3000/api/v1/submissions/${userID}`
-      );
+      const req = await fetch(`${BACK_END_LOCAL_URL}/submissions/${userID}`);
       const res = await req.json();
       console.log(res);
       setSubmissions(res.metadata);

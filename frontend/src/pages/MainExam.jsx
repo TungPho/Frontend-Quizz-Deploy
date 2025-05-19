@@ -15,6 +15,7 @@ import TestWaitingRoom from "../components/TestWaitingRoom";
 const MainExam = () => {
   const tempSubmitBtn = useRef(null);
   const mainSubmitBtn = useRef(null);
+
   const navigate = useNavigate();
   // This is the main exam
   const [mainExam, setMainExam] = useState({});
@@ -30,6 +31,8 @@ const MainExam = () => {
     useContext(QuizzContext);
   const [examProgress, setExamProgress] = useState({});
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
+
   // student info
   const timerKey = room + "," + userID;
   if (!isNaN(timeRemaining) && timeRemaining !== 0) {
@@ -111,7 +114,7 @@ const MainExam = () => {
     const fetchExamProgress = async () => {
       console.log("fe");
       const getExamReq = await fetch(
-        `http://localhost:3000/api/v1/exam_progress/${userID}`
+        `${BACK_END_LOCAL_URL}/exam_progress/${userID}`
       );
       const res = await getExamReq.json();
       setExamProgress(res.metadata[0]);
@@ -122,7 +125,7 @@ const MainExam = () => {
   /////
   useEffect(() => {
     setSocket(
-      io("ws://localhost:3000", {
+      io(`${BACK_END_SOCKET_URL}`, {
         query: { userId: userID, role },
       })
     );
@@ -246,7 +249,7 @@ const MainExam = () => {
     const syncExamProgress = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/v1/exam_progress/${userID}`,
+          `${BACK_END_LOCAL_URL}/exam_progress/${userID}`,
           {
             method: "POST",
             headers: {

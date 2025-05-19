@@ -9,6 +9,7 @@ function PDFUploader() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const userID = localStorage.getItem("userID");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   useEffect(() => {
     fetchDocuments();
@@ -18,9 +19,7 @@ function PDFUploader() {
     console.log(userID);
     try {
       setLoading(true);
-      const response = await fetch(
-        `http://localhost:3000/api/v1/documents/${userID}`
-      );
+      const response = await fetch(`${BACK_END_LOCAL_URL}/documents/${userID}`);
       if (!response.ok) {
         throw new Error("Không thể lấy danh sách tài liệu");
       }
@@ -51,7 +50,7 @@ function PDFUploader() {
     }
     try {
       const response = await fetch(
-        `http://localhost:3000/api/v1/documents/${documentId}`,
+        `${BACK_END_LOCAL_URL}/documents/${documentId}`,
         {
           method: "DELETE",
         }

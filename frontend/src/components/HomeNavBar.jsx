@@ -22,6 +22,8 @@ const HomeNavBar = () => {
   const [isOpenProfileMenu, setIsOpenProfileMenu] = useState(false);
   const [isOpenYesNoMenu, setIsOpenYesNoMenu] = useState(false);
   const [isPermit, setIsPermit] = useState(false);
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
 
   const navigate = useNavigate();
 
@@ -30,9 +32,10 @@ const HomeNavBar = () => {
   const userEmail = localStorage.getItem("userEmail");
   const studentId = localStorage.getItem("studentId");
   //setSocket
+  // io den orender.com
   useEffect(() => {
     setSocket(
-      io("ws://localhost:3000", {
+      io(`${BACK_END_SOCKET_URL}`, {
         query: { userId: userID, role }, // Gửi userId và role khi kết nối
       })
     );
@@ -52,7 +55,7 @@ const HomeNavBar = () => {
   useEffect(() => {
     const fetchExamProgress = async () => {
       const getExamReq = await fetch(
-        `http://localhost:3000/api/v1/exam_progress/${userID}`
+        `${BACK_END_LOCAL_URL}/exam_progress/${userID}`
       );
       const res = await getExamReq.json();
 

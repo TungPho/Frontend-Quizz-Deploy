@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 const NotificationComponent = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { socket, notifications, setNotifications } = useContext(QuizzContext);
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+
   // Mock notification data
 
   useEffect(() => {
@@ -34,7 +36,7 @@ const NotificationComponent = () => {
     );
     // update notifications
     const reqUpdateState = fetch(
-      `http://localhost:3000/api/v1/notification/${currentNotification._id}`,
+      `${BACK_END_LOCAL_URL}/notification/${currentNotification._id}`,
       {
         method: "PATCH",
         headers: {

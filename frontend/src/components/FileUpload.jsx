@@ -8,12 +8,13 @@ const FileUpload = ({ onFileUpload }) => {
   const userID = localStorage.getItem("userID");
   const [classes, setClasses] = useState();
   const [selectedClass, setSelectedClass] = useState("");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   //fetch all classes by userid
   useEffect(() => {
     const fetchClasses = async () => {
       const req = await fetch(
-        `http://localhost:3000/api/v1/teacher_get_classes/${userID}`
+        `${BACK_END_LOCAL_URL}/teacher_get_classes/${userID}`
       );
       const res = await req.json();
       setClasses(res.metadata);
@@ -51,7 +52,7 @@ const FileUpload = ({ onFileUpload }) => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("http://localhost:3000/api/v1/documents", {
+      const response = await fetch(`${BACK_END_LOCAL_URL}/documents`, {
         method: "POST",
         body: formData,
       });

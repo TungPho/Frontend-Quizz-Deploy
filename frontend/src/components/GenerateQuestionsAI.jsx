@@ -6,6 +6,7 @@ const GenerateQuestionsAI = () => {
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
   const [numQuestions, setNumQuestions] = useState(5);
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [questions, setQuestions] = useState([]);
@@ -18,7 +19,7 @@ const GenerateQuestionsAI = () => {
 
     setIsGenerating(true);
     const reqGenAI = await fetch(
-      `http://localhost:3000/api/v1/ai_generate_questions`,
+      `${BACK_END_LOCAL_URL}/ai_generate_questions`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +59,7 @@ const GenerateQuestionsAI = () => {
     try {
       // add those questions to the test
       const reqCreateExamAI = await fetch(
-        `http://localhost:3000/api/v1/generate_questions`,
+        `${BACK_END_LOCAL_URL}/generate_questions`,
         {
           headers: {
             "Content-Type": "application/json",

@@ -11,6 +11,9 @@ import { toast } from "react-toastify";
 import NotificationComponent from "../components/NotificationComponent";
 
 const Room = () => {
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
+
   const { roomID } = useParams();
   const userID = localStorage.getItem("userID");
   const role = localStorage.getItem("role");
@@ -60,7 +63,7 @@ const Room = () => {
   useEffect(() => {
     const fetchStudentList = async () => {
       const req = await fetch(
-        `http://localhost:3000/api/v1/get_all_students/${classID}`
+        `${BACK_END_LOCAL_URL}/get_all_students/${classID}`
       );
       console.log(req);
       const res = await req.json();
@@ -132,7 +135,7 @@ const Room = () => {
 
   useEffect(() => {
     setSocket(
-      io("ws://localhost:3000", {
+      io(`${BACK_END_SOCKET_URL}`, {
         query: { userId: userID, role },
       })
     );
@@ -197,7 +200,7 @@ const Room = () => {
     setTimeout(async () => {
       try {
         const req = await axios.post(
-          "http://localhost:3000/api/v1/test_history",
+          `${BACK_END_LOCAL_URL}/test_history`,
           JSON.stringify(newTestHistory),
           {
             headers: {

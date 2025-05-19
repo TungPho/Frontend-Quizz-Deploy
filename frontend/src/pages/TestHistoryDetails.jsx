@@ -21,10 +21,12 @@ export default function TestHistoryDetail() {
   const chartInstance = useRef(null);
   const [submissionData, setSubmissionData] = useState(null);
   const navigate = useNavigate();
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+
   useEffect(() => {
     const fetchTestHistoryById = async () => {
       const req = await fetch(
-        `http://localhost:3000/api/v1/get_test_history_by_id/${testHistoryId}`
+        `${BACK_END_LOCAL_URL}/get_test_history_by_id/${testHistoryId}`
       );
       const res = await req.json();
       console.log(res);
@@ -32,7 +34,7 @@ export default function TestHistoryDetail() {
     };
     const fetchSubmissionData = async () => {
       const req = await fetch(
-        `http://localhost:3000/api/v1/get_submissions_by_roomId/${testData?.roomId}`
+        `${BACK_END_LOCAL_URL}/get_submissions_by_roomId/${testData?.roomId}`
       );
       const res = await req.json();
       setSubmissionData(res.metadata);

@@ -9,13 +9,12 @@ const TestHistory = () => {
   const [testHistory, setTestHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const userID = localStorage.getItem("userID");
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   useEffect(() => {
     setTimeout(() => {
       const fetchTestHistory = async () => {
-        const req = await fetch(
-          `http://localhost:3000/api/v1/test_history/${userID}`
-        );
+        const req = await fetch(`${BACK_END_LOCAL_URL}/test_history/${userID}`);
         const res = await req.json();
         console.log(res);
         setTestHistory(res.metadata);

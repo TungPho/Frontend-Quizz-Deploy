@@ -8,6 +8,8 @@ import axios from "axios";
 
 const Profile = () => {
   const [showEditModal, setShowEditModal] = useState(false);
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -27,9 +29,7 @@ const Profile = () => {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `http://localhost:3000/api/v1/users/${userID}`
-      );
+      const response = await axios.get(`${BACK_END_LOCAL_URL}/users/${userID}`);
 
       // Get user data from response
       const user = response.data.metadata;
@@ -75,7 +75,7 @@ const Profile = () => {
   const handleSaveChanges = async () => {
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/v1/users/${userID}`,
+        `${BACK_END_LOCAL_URL}/users/${userID}`,
         {
           name: formName,
           school_name: formSchool,

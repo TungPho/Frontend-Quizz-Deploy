@@ -11,6 +11,8 @@ import { toast } from "react-toastify";
 const TestEdit = () => {
   const { testId } = useParams();
   const navigate = useNavigate();
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
+
   // get Test
   const [test, setTest] = useState(null);
   const [newTitle, setNewTitle] = useState("");
@@ -22,7 +24,7 @@ const TestEdit = () => {
 
   useEffect(() => {
     const fetchTest = async () => {
-      const req = await fetch(`http://localhost:3000/api/v1/tests/${testId}`);
+      const req = await fetch(`${BACK_END_LOCAL_URL}/tests/${testId}`);
       const testFound = await req.json();
       console.log(testFound.metadata);
       setTest(testFound.metadata);
@@ -32,7 +34,7 @@ const TestEdit = () => {
       const questionPromises = testFound.metadata.questions.map(
         async (questionID) => {
           const questionDetail = await fetch(
-            `http://localhost:3000/api/v1/questions/${questionID}`
+            `${BACK_END_LOCAL_URL}/questions/${questionID}`
           );
           const finalQuestionDetail = await questionDetail.json();
           return finalQuestionDetail.metadata;
@@ -49,7 +51,7 @@ const TestEdit = () => {
   }, [testId, questionLength]);
 
   const handleSaveTest = async () => {
-    const req = await fetch(`http://localhost:3000/api/v1/tests/${testId}`, {
+    const req = await fetch(`${BACK_END_LOCAL_URL}/tests/${testId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -67,7 +69,7 @@ const TestEdit = () => {
 
   const handleDeleteQuestion = async (id) => {
     console.log(id);
-    const req = await fetch(`http://localhost:3000/api/v1/questions/${id}`, {
+    const req = await fetch(`${BACK_END_LOCAL_URL}/questions/${id}`, {
       method: "DELETE",
     });
     const res = await req.json();

@@ -10,7 +10,7 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [success, setSuccess] = useState(false);
-  const BACK_END_LOCAL_URL = "http://localhost:3000/api/v1"; // Giả định URL backend
+  const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
   const { id, token } = useParams();
   // fetch to verify user then render this page else show 404
@@ -18,19 +18,16 @@ const ResetPassword = () => {
     const verifyUser = async () => {
       setIsLoading(true);
       try {
-        const reqVerify = await fetch(
-          `http://localhost:3000/api/v1/users/verify`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userId: id,
-              token,
-            }),
-          }
-        );
+        const reqVerify = await fetch(`${BACK_END_LOCAL_URL}/users/verify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: id,
+            token,
+          }),
+        });
 
         console.log(reqVerify);
         if (reqVerify.status === 200) {
