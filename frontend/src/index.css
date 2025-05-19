@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* * {
+  margin: 0;
+  padding: 0;
+  font-family: "General Sans", sans-serif;
+} */
+
+.pick-question-btn {
+  color: black;
+  border-radius: 20px;
+  padding: 5px;
+}
+.pick-question-btn:hover {
+  background-color: rgb(29, 235, 29);
+}
+
+.main_content {
+  margin-left: 20%;
+  height: 2000px;
+}
+
+/* Font Poppins */
+.poppins-regular {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.poppins-medium {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.poppins-semibold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.poppins-bold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* All buttons */
+.custom-btn {
+  background-color: #4ade80 !important; /* bg-green-400 */
+  border-color: #4ade80 !important;
+  color: white !important;
+}
+.custom-btn:hover {
+  background-color: #22c55e !important; /* bg-green-500 */
+  border-color: #22c55e !important;
+}
