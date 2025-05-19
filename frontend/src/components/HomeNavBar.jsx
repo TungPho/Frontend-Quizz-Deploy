@@ -36,7 +36,11 @@ const HomeNavBar = () => {
   useEffect(() => {
     setSocket(
       io(`${BACK_END_SOCKET_URL}`, {
-        query: { userId: userID, role }, // Gửi userId và role khi kết nối
+        query: { userId: userID, role },
+        withCredentials: true,
+        extraHeaders: {
+          "my-custom-header": "abcd",
+        },
       })
     );
   }, [role, setSocket, userID]);

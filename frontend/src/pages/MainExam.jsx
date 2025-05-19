@@ -127,6 +127,10 @@ const MainExam = () => {
     setSocket(
       io(`${BACK_END_SOCKET_URL}`, {
         query: { userId: userID, role },
+        withCredentials: true,
+        extraHeaders: {
+          "my-custom-header": "abcd",
+        },
       })
     );
   }, [role, setSocket, userID]);

@@ -52,7 +52,11 @@ const Login = () => {
 
       setSocket(
         io(`${BACK_END_SOCKET_URL}`, {
-          query: { userId: res.id, role }, // Gửi userId và role khi kết nối
+          query: { userId: res.id, role },
+          withCredentials: true,
+          extraHeaders: {
+            "my-custom-header": "abcd",
+          },
         })
       );
 

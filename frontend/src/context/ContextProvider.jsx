@@ -9,7 +9,12 @@ const ContextProvider = (props) => {
   const [state, setState] = useState("normal");
   const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
 
-  const s = io(`${BACK_END_SOCKET_URL}`);
+  const s = io(`${BACK_END_SOCKET_URL}`, {
+    withCredentials: true,
+    extraHeaders: {
+      "my-custom-header": "abcd",
+    },
+  });
   const [socket, setSocket] = useState(s);
 
   // for submissions
