@@ -8,8 +8,7 @@ const ContextProvider = (props) => {
   const [role, setRole] = useState("");
   const [state, setState] = useState("normal");
   const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
-
-  const s = io(`${BACK_END_SOCKET_URL}`, {
+  const s = io(`https://backend-quizz-deploy.onrender.com`, {
     withCredentials: true,
     extraHeaders: {
       "my-custom-header": "abcd",

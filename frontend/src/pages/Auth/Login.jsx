@@ -51,7 +51,7 @@ const Login = () => {
       localStorage.setItem("studentId", res.student_id);
 
       setSocket(
-        io(`${BACK_END_SOCKET_URL}`, {
+        io(`https://backend-quizz-deploy.onrender.com`, {
           query: { userId: res.id, role },
           withCredentials: true,
           extraHeaders: {

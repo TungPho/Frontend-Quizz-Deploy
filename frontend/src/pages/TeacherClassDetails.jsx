@@ -56,7 +56,7 @@ const TeacherClassDetails = () => {
 
   useEffect(() => {
     setSocket(
-      io(`${BACK_END_SOCKET_URL}`, {
+      io(`https://backend-quizz-deploy.onrender.com`, {
         query: { userId: userID, role },
         withCredentials: true,
         extraHeaders: {
