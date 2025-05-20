@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -19,6 +19,25 @@ const SignUp = () => {
     receiveEmails: false,
   });
 
+  // Function to generate a random 9-digit student ID
+  const generateStudentId = () => {
+    let result = "";
+    for (let i = 0; i < 9; i++) {
+      result += Math.floor(Math.random() * 10);
+    }
+    return result;
+  };
+
+  // Generate student ID when role changes to student
+  useEffect(() => {
+    if (formData.role === "student") {
+      setFormData((prevData) => ({
+        ...prevData,
+        studentId: generateStudentId(),
+      }));
+    }
+  }, [formData.role]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     let user;
@@ -28,7 +47,7 @@ const SignUp = () => {
         password: formData.password,
         role: "student",
         user_attributes: {
-          name: formData.firstName + formData.lastName,
+          name: formData.firstName + " " + formData.lastName, // Added space between first and last name
           student_id: formData.studentId,
           school_name: formData.school,
         },
@@ -39,7 +58,7 @@ const SignUp = () => {
         password: formData.password,
         role: "teacher",
         user_attributes: {
-          name: formData.firstName + formData.lastName,
+          name: formData.firstName + " " + formData.lastName, // Added space between first and last name
           school_name: formData.school,
         },
       };
@@ -83,6 +102,14 @@ const SignUp = () => {
 
   const handleBack = () => {
     setFormStep(1);
+  };
+
+  // Regenerate student ID on request
+  const handleRegenerateStudentId = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      studentId: generateStudentId(),
+    }));
   };
 
   return (
@@ -361,15 +388,40 @@ const SignUp = () => {
                   >
                     Student ID
                   </label>
-                  <input
-                    type="text"
-                    id="studentId"
-                    name="studentId"
-                    value={formData.studentId}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-300"
-                    required
-                  />
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      id="studentId"
+                      name="studentId"
+                      value={formData.studentId}
+                      onChange={handleChange}
+                      className="w-full p-2 border rounded-l focus:outline-none focus:ring-2 focus:ring-green-300"
+                      readOnly
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRegenerateStudentId}
+                      className="bg-green-500 text-white p-2 rounded-r hover:bg-green-600 transition-colors"
+                      title="Generate new ID"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Student ID được tạo tự động. Bạn có thể tạo ID mới bằng cách
+                    nhấn nút làm mới.
+                  </p>
                 </div>
               )}
 
@@ -395,7 +447,7 @@ const SignUp = () => {
 
       {/* Right Panel - Background Image with Green Overlay */}
       <div className="hidden md:block md:w-1/2 relative overflow-hidden">
-        <div className="absolute inset-0  opacity-60 z-10"></div>
+        <div className="absolute inset-0 opacity-60 z-10"></div>
         <img
           src="images/new_background.png"
           alt="3D geometric shapes"

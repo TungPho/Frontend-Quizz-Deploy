@@ -63,25 +63,21 @@ const LandingPage = () => {
               Tạo quiz tương tác chỉ trong vài phút
             </h1>
             <p className="text-lg text-gray-600 mb-8">
-              QuizViet giúp bạn tạo, chia sẻ và phân tích các bài kiểm tra, các
+              Quizzes giúp bạn tạo, chia sẻ và phân tích các bài kiểm tra, các
               trò chơi trắc nghiệm một cách dễ dàng và thú vị.
             </p>
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-              <button className="bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 text-lg">
+              <button
+                onClick={() => {
+                  navigate("/login");
+                }}
+                className="bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 text-lg"
+              >
                 Bắt đầu miễn phí
               </button>
               <button className="border border-green-500 text-green-500 px-6 py-3 rounded-lg font-medium hover:bg-green-50 text-lg">
                 Xem demo
               </button>
-            </div>
-          </div>
-          <div className="md:w-1/2 md:pl-10">
-            <div className="bg-white p-4 rounded-xl shadow-lg">
-              <img
-                src="/api/placeholder/600/400"
-                alt="QuizViet App Demo"
-                className="rounded-lg"
-              />
             </div>
           </div>
         </div>
@@ -190,9 +186,7 @@ const LandingPage = () => {
                 3
               </div>
               <h3 className="text-xl font-semibold mb-2">Chia sẻ</h3>
-              <p className="text-gray-600">
-                Gửi quiz đến người tham gia qua nhiều cách.
-              </p>
+              <p className="text-gray-600">Giáo viên chia sẻ mã phòng</p>
             </div>
             <div>
               <div className="bg-green-500 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
@@ -200,241 +194,6 @@ const LandingPage = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Phân tích</h3>
               <p className="text-gray-600">Xem kết quả và thống kê chi tiết.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="py-12 bg-white">
-        <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12">Bảng giá</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="border rounded-lg p-6 hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-bold mb-2">Miễn phí</h3>
-              <p className="text-green-500 text-3xl font-bold mb-4">0 đ</p>
-              <ul className="space-y-2 mb-6">
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>3 quiz</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>30 câu hỏi mỗi quiz</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Thống kê cơ bản</span>
-                </li>
-              </ul>
-              <button className="w-full border border-green-500 text-green-500 px-4 py-2 rounded-lg font-medium hover:bg-green-50">
-                Bắt đầu
-              </button>
-            </div>
-            <div className="border border-green-500 rounded-lg p-6 shadow-lg relative">
-              <span className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-                Phổ biến nhất
-              </span>
-              <h3 className="text-xl font-bold mb-2">Cơ bản</h3>
-              <p className="text-green-500 text-3xl font-bold mb-4">
-                99.000 đ/tháng
-              </p>
-              <ul className="space-y-2 mb-6">
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>20 quiz</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>100 câu hỏi mỗi quiz</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Thống kê đầy đủ</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Tùy chỉnh giao diện</span>
-                </li>
-              </ul>
-              <button className="w-full bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600">
-                Đăng ký ngay
-              </button>
-            </div>
-            <div className="border rounded-lg p-6 hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-bold mb-2">Chuyên nghiệp</h3>
-              <p className="text-green-500 text-3xl font-bold mb-4">
-                199.000 đ/tháng
-              </p>
-              <ul className="space-y-2 mb-6">
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Quiz không giới hạn</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Câu hỏi không giới hạn</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Phân tích nâng cao</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Tùy chỉnh hoàn toàn</span>
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Hỗ trợ ưu tiên</span>
-                </li>
-              </ul>
-              <button className="w-full border border-green-500 text-green-500 px-4 py-2 rounded-lg font-medium hover:bg-green-50">
-                Đăng ký ngay
-              </button>
             </div>
           </div>
         </div>
@@ -448,9 +207,14 @@ const LandingPage = () => {
           </h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">
             Tham gia cùng hàng nghìn giáo viên, đào tạo viên và nhà tiếp thị
-            đang sử dụng QuizViet để tạo ra trải nghiệm học tập tương tác.
+            đang sử dụng Quizzes để tạo ra trải nghiệm học tập tương tác.
           </p>
-          <button className="bg-white text-green-600 px-6 py-3 rounded-lg font-medium hover:bg-green-50 text-lg">
+          <button
+            onClick={() => {
+              navigate("/login");
+            }}
+            className="bg-white text-green-600 px-6 py-3 rounded-lg font-medium hover:bg-green-50 text-lg"
+          >
             Bắt đầu miễn phí
           </button>
         </div>
@@ -475,7 +239,7 @@ const LandingPage = () => {
                     d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                   />
                 </svg>
-                <h2 className="text-2xl font-bold">QuizViet</h2>
+                <h2 className="text-2xl font-bold">Quizzes</h2>
               </div>
               <p className="mt-2 text-gray-400">
                 Nền tảng tạo quiz tương tác #1 Việt Nam
