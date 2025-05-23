@@ -36,6 +36,29 @@ const TeacherClassDetails = () => {
 
   const navigate = useNavigate();
 
+  const handleRemoveStudent = async (studentID) => {
+    const confirm = window.confirm(
+      "Are you sure you want to remove this student?"
+    );
+    if (!confirm) return;
+
+    try {
+      const response = await axios.post(
+        `${BACK_END_LOCAL_URL}/remove-student/${classId}`,
+        {
+          studentID: studentID,
+        }
+      );
+      console.log("Student removed:", response.data);
+      // Có thể gọi hàm cập nhật UI ở đây nếu cần (ví dụ: refetch data)
+    } catch (error) {
+      console.error(
+        "Failed to remove student:",
+        error.response?.data || error.message
+      );
+      alert("Failed to remove student.");
+    }
+  };
   useEffect(() => {
     socket.on("aceptedStudentJoinClass", async ({ studentId }) => {
       console.log(studentId);
@@ -398,15 +421,7 @@ const TeacherClassDetails = () => {
                       <button
                         className="text-red-500 hover:text-red-700"
                         onClick={() => {
-                          // Add remove student functionality here
-                          if (
-                            window.confirm(
-                              `Remove ${student.metadata.user_attributes.name} from this class?`
-                            )
-                          ) {
-                            // Implement the removal logic
-                            // You could emit a socket event or make an API call
-                          }
+                          handleRemoveStudent(student.metadata._id);
                         }}
                       >
                         Remove
