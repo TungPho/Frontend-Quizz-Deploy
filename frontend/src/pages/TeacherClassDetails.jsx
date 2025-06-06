@@ -135,6 +135,7 @@ const TeacherClassDetails = () => {
         try {
           const studentResponses = await Promise.all(studentPromises);
           const studentData = studentResponses.map((response) => response.data);
+          console.log(studentData);
           setStudents(studentData);
         } catch (error) {
           console.error("Error fetching student data:", error);
@@ -412,7 +413,7 @@ const TeacherClassDetails = () => {
                       {student.metadata?.user_attributes.name || "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {student.metadata.email || "N/A"}
+                      {student.metadata?.email || "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {student.metadata?.user_attributes.school_name || "N/A"}
