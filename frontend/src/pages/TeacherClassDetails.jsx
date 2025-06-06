@@ -41,7 +41,7 @@ const TeacherClassDetails = () => {
       "Are you sure you want to remove this student?"
     );
     if (!confirm) return;
-
+    console.log("OKay");
     try {
       const response = await axios.post(
         `${BACK_END_LOCAL_URL}/remove-student/${classId}`,
@@ -406,16 +406,16 @@ const TeacherClassDetails = () => {
                 {students.map((student, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {student.metadata.user_attributes.student_id || "N/A"}
+                      {student.metadata?.user_attributes.student_id || "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {student.metadata.user_attributes.name || "N/A"}
+                      {student.metadata?.user_attributes.name || "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {student.metadata.email || "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {student.metadata.user_attributes.school_name || "N/A"}
+                      {student.metadata?.user_attributes.school_name || "N/A"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
