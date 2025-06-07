@@ -31,7 +31,6 @@ const MainExam = () => {
     useContext(QuizzContext);
   const [examProgress, setExamProgress] = useState({});
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
-  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
 
   // student info
   const timerKey = room + "," + userID;
