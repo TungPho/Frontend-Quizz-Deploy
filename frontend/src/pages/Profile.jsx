@@ -2,6 +2,7 @@ import HomeNavBar from "../components/HomeNavBar";
 import { FaSchool } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
 import { LiaUserEditSolid } from "react-icons/lia";
+import { FaUserGraduate } from "react-icons/fa"; // Added icon for student ID
 import SideBar from "../components/SideBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -15,6 +16,7 @@ const Profile = () => {
     email: "",
     school_name: "",
     role: "",
+    student_id: "", // Added student_id to state
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,13 +35,14 @@ const Profile = () => {
 
       // Get user data from response
       const user = response.data.metadata;
-
+      console.log(user);
       // Update state with fetched data
       setUserData({
         name: user.user_attributes?.name || "",
         email: user.email || "",
         school_name: user.user_attributes?.school_name || "",
         role: user.role || "",
+        student_id: user.user_attributes?.student_id || "", // Extract student_id
       });
 
       // Also update form fields
@@ -150,6 +153,17 @@ const Profile = () => {
                   <p className="font-sans text-gray-600 text-sm mt-1">
                     {userData.email}
                   </p>
+
+                  {/* Display Student ID only if role is student */}
+                  {userData.role === "student" && userData.student_id && (
+                    <div className="mt-2">
+                      <p className="flex items-center justify-center md:justify-start text-sm">
+                        <FaUserGraduate className="mr-2 text-blue-500" />
+                        Student ID: {userData.student_id}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="mt-2">
                     <p className="font-sans font-medium">Mathematics</p>
                     <p className="flex items-center justify-center md:justify-start text-sm mt-1">
