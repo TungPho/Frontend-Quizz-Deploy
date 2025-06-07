@@ -66,7 +66,7 @@ const Login = () => {
         : navigate("/home/library");
     } catch (error) {
       console.log(error);
-      toast.error("Error Login");
+      toast.error(error.response.data.error);
     }
   };
 
