@@ -36,12 +36,49 @@ const TeacherClassDetails = () => {
 
   const navigate = useNavigate();
 
+  // Extract student fetching logic into a separate function for reuse
+  const fetchStudentList = async (showLoadingToast = false) => {
+    try {
+      if (showLoadingToast) {
+        toast.info("Refreshing student list...");
+      }
+
+      const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${classId}`);
+      const res = await req.json();
+
+      if (res.metadata.students && res.metadata.students.length > 0) {
+        setStudentLength(res.metadata.students.length);
+
+        // Fetch each student's details
+        const studentPromises = res.metadata.students.map((studentId) =>
+          axios.get(`${BACK_END_LOCAL_URL}/users/${studentId}`)
+        );
+
+        const studentResponses = await Promise.all(studentPromises);
+        const studentData = studentResponses.map((response) => response.data);
+        setStudents(studentData);
+      } else {
+        // No students in class
+        setStudentLength(0);
+        setStudents([]);
+      }
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+      toast.error("Failed to refresh student list");
+    }
+  };
+
+  // Manual refresh function for student list
+  const refreshStudentList = async () => {
+    await fetchStudentList(true);
+  };
+
   const handleRemoveStudent = async (studentID) => {
     const confirm = window.confirm(
       "Are you sure you want to remove this student?"
     );
     if (!confirm) return;
-    console.log("OKay");
+
     try {
       const response = await axios.post(
         `${BACK_END_LOCAL_URL}/remove-student/${classId}`,
@@ -49,32 +86,87 @@ const TeacherClassDetails = () => {
           studentID: studentID,
         }
       );
+
       console.log("Student removed:", response.data);
-      // Có thể gọi hàm cập nhật UI ở đây nếu cần (ví dụ: refetch data)
+
+      // Show success notification
+      toast.success("Student removed successfully!");
+
+      // Refresh the student list
+      await fetchStudentList();
     } catch (error) {
       console.error(
         "Failed to remove student:",
         error.response?.data || error.message
       );
-      alert("Failed to remove student.");
+
+      // Show error notification with specific message
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data ||
+        "Failed to remove student. Please try again.";
+      toast.error(errorMessage);
     }
   };
+
+  // Improved socket event handling for student acceptance
   useEffect(() => {
-    socket.on("aceptedStudentJoinClass", async ({ studentId }) => {
-      console.log(studentId);
-      const foundStudent = await axios.get(
-        `${BACK_END_LOCAL_URL}/users/${studentId}`
-      );
-      const id = foundStudent.data.metadata.user_attributes.student_id;
-      const addedStudentToClassReq = await axios.post(
-        `${BACK_END_LOCAL_URL}/classes/${classId}`,
-        {
-          studentID: id,
-        }
-      );
-      console.log(addedStudentToClassReq);
-      toast.success("Student accepted to join class");
+    const handleStudentAccepted = async ({ studentId }) => {
+      try {
+        console.log("Student accepted:", studentId);
+
+        // Lấy thông tin sinh viên
+        const foundStudent = await axios.get(
+          `${BACK_END_LOCAL_URL}/users/${studentId}`
+        );
+
+        const studentData = foundStudent.data;
+        const studentID = studentData.metadata.user_attributes.student_id;
+
+        // Thêm sinh viên vào class
+        const addedStudentToClassReq = await axios.post(
+          `${BACK_END_LOCAL_URL}/classes/${classId}`,
+          {
+            studentID: studentID,
+          }
+        );
+
+        console.log("Student added to class:", addedStudentToClassReq.data);
+
+        // Hiển thị thông báo thành công với tên sinh viên
+        const studentName =
+          studentData.metadata.user_attributes.name || studentID;
+        toast.success(`Student ${studentName} joined the class successfully!`);
+
+        // Cập nhật lại danh sách sinh viên
+        await fetchStudentList();
+      } catch (error) {
+        console.error("Error adding student to class:", error);
+        toast.error("Failed to add student to class. Please try again.");
+      }
+    };
+
+    // Đăng ký event listener
+    socket.on("aceptedStudentJoinClass", handleStudentAccepted);
+
+    // Cleanup function để remove event listener
+    return () => {
+      socket.off("aceptedStudentJoinClass", handleStudentAccepted);
+    };
+  }, [socket, classId, BACK_END_LOCAL_URL]);
+
+  // Additional socket event for real-time student list updates
+  useEffect(() => {
+    // Lắng nghe event cập nhật danh sách sinh viên real-time
+    socket.on("studentListUpdated", async (data) => {
+      console.log("Student list updated:", data);
+      await fetchStudentList();
+      toast.info("Student list has been updated");
     });
+
+    return () => {
+      socket.off("studentListUpdated");
+    };
   }, [socket]);
 
   useEffect(() => {
@@ -119,34 +211,29 @@ const TeacherClassDetails = () => {
 
   useEffect(() => {
     const fetchClass = async () => {
-      const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${classId}`);
-      const res = await req.json();
-      setClass(res.metadata);
-      setClassName(res.metadata.name);
+      try {
+        const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${classId}`);
+        const res = await req.json();
+        setClass(res.metadata);
+        setClassName(res.metadata.name);
 
-      if (res.metadata.students && res.metadata.students.length > 0) {
-        setStudentLength(res.metadata.students.length);
-
-        // Fetch each student's details
-        const studentPromises = res.metadata.students.map((studentId) =>
-          axios.get(`${BACK_END_LOCAL_URL}/users/${studentId}`)
-        );
-
-        try {
-          const studentResponses = await Promise.all(studentPromises);
-          const studentData = studentResponses.map((response) => response.data);
-          console.log(studentData);
-          setStudents(studentData);
-        } catch (error) {
-          console.error("Error fetching student data:", error);
-        }
+        // Use the extracted function for student fetching
+        await fetchStudentList();
+      } catch (error) {
+        console.error("Error fetching class data:", error);
+        toast.error("Failed to load class information");
       }
     };
 
     const fetchTestByTeacherID = async () => {
-      const req = await fetch(`${BACK_END_LOCAL_URL}/tests-find/${userID}`);
-      const res = await req.json();
-      setTests(res.metadata.foundTests);
+      try {
+        const req = await fetch(`${BACK_END_LOCAL_URL}/tests-find/${userID}`);
+        const res = await req.json();
+        setTests(res.metadata.foundTests);
+      } catch (error) {
+        console.error("Error fetching tests:", error);
+        toast.error("Failed to load tests");
+      }
     };
 
     fetchClass();
@@ -171,10 +258,11 @@ const TeacherClassDetails = () => {
 
   const handleAddStudent = async () => {
     if (!studentID.trim()) {
-      alert("Please enter a valid student ID");
+      toast.error("Please enter a valid student ID");
       return;
     }
     socket.emit("requestToJoinClass", classes, studentID);
+    setStudentID(""); // Clear input after sending request
   };
 
   const refreshRooms = () => {
@@ -343,9 +431,18 @@ const TeacherClassDetails = () => {
       <div className="max-w-5xl mx-auto mt-8 px-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-700">Student List</h2>
-          <span className="bg-green-100 text-green-600 py-1 px-3 rounded-full text-sm font-medium">
-            {studentLength} Students
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={refreshStudentList}
+              className="p-2 rounded-full bg-green-100 hover:bg-green-200 text-green-600 shadow transition-all flex items-center text-sm"
+              title="Refresh student list"
+            >
+              <IoReload className="mr-1" /> Refresh
+            </button>
+            <span className="bg-green-100 text-green-600 py-1 px-3 rounded-full text-sm font-medium">
+              {studentLength} Students
+            </span>
+          </div>
         </div>
 
         {students.length === 0 ? (
@@ -420,7 +517,7 @@ const TeacherClassDetails = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
-                        className="text-red-500 hover:text-red-700"
+                        className="text-red-500 hover:text-red-700 transition-colors"
                         onClick={() => {
                           handleRemoveStudent(student.metadata._id);
                         }}
@@ -512,7 +609,7 @@ const TeacherClassDetails = () => {
                 <button
                   onClick={() => {
                     if (!selectedTest) {
-                      alert("Please select a test");
+                      toast.error("Please select a test");
                       return;
                     }
                     createRoom();
