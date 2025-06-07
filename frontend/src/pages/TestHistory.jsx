@@ -11,6 +11,47 @@ const TestHistory = () => {
   const userID = localStorage.getItem("userID");
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
+  // Function to format date and time
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "N/A";
+
+    const date = new Date(dateString);
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false, // Use 24-hour format, set to true for 12-hour format
+    };
+
+    return date.toLocaleString("vi-VN", options);
+  };
+
+  // Alternative format function for just date
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
+  // Alternative format function for just time
+  const formatTime = (dateString) => {
+    if (!dateString) return "N/A";
+
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+
   useEffect(() => {
     setTimeout(() => {
       const fetchTestHistory = async () => {
@@ -101,8 +142,12 @@ const TestHistory = () => {
                       </td>
                       <td className="py-4 px-6 text-left">{test.roomId}</td>
                       <td className="py-4 px-6 text-left">{test.className}</td>
-                      <td className="py-4 px-6 text-left">{test.startTime}</td>
-                      <td className="py-4 px-6 text-left">{test.endTime}</td>
+                      <td className="py-4 px-6 text-left">
+                        {formatDateTime(test.startTime)}
+                      </td>
+                      <td className="py-4 px-6 text-left">
+                        {formatDateTime(test.endTime)}
+                      </td>
                       <td className="py-4 px-6 text-center">
                         <NavLink
                           to={`/home/test_history/${test._id}`}
