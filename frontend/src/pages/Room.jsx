@@ -12,7 +12,6 @@ import NotificationComponent from "../components/NotificationComponent";
 
 const Room = () => {
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
-  const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
 
   const { roomID } = useParams();
   const userID = localStorage.getItem("userID");
@@ -49,7 +48,6 @@ const Room = () => {
     localStorage.setItem(`exam_state_${roomID}`, JSON.stringify(examState));
   };
 
-  // Hàm helper để lấy trạng thái từ localStorage
   const loadExamState = () => {
     const savedState = localStorage.getItem(`exam_state_${roomID}`);
     if (savedState) {
@@ -159,6 +157,14 @@ const Room = () => {
   };
 
   const handleStartExam = () => {
+    if (
+      !(
+        data.length - 1 < studentList.length &&
+        window.confirm("Are you sure you want to start the test ?")
+      )
+    ) {
+      return;
+    }
     const now = new Date();
     const newEndTime = new Date(now.getTime() + testDuration * 60000);
 
