@@ -19,7 +19,7 @@ const Room = () => {
   const { socket, setSocket } = useContext(QuizzContext);
   const [data, setData] = useState([]);
   const { classID } = useLocation().state;
-  const [isRoomExist, setIsRoomExist] = useState(null); // null để biết chưa check
+  const [isRoomExist, setIsRoomExist] = useState(true);
   const navigate = useNavigate();
   const [studentList, setStudentList] = useState([]);
 
@@ -35,16 +35,13 @@ const Room = () => {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
 
-  // Loading states - Đơn giản hóa
+  // Loading states
   const [isLoading, setIsLoading] = useState(false);
-  const [isPageReady, setIsPageReady] = useState(false); // Thay thế cho isPageLoading
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isStudentListLoading, setIsStudentListLoading] = useState(true);
+  const [isRoomDataLoading, setIsRoomDataLoading] = useState(true);
   const [isStartingExam, setIsStartingExam] = useState(false);
   const [forceSubmitLoading, setForceSubmitLoading] = useState({});
-
-  // Tracking completion states
-  const [roomDataLoaded, setRoomDataLoaded] = useState(false);
-  const [studentListLoaded, setStudentListLoaded] = useState(false);
-  const [roomExistenceChecked, setRoomExistenceChecked] = useState(false);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -70,19 +67,14 @@ const Room = () => {
     }
   };
 
-  // Check if all data is loaded
-  useEffect(() => {
-    if (roomDataLoaded && studentListLoaded && roomExistenceChecked) {
-      setIsPageReady(true);
-    }
-  }, [roomDataLoaded, studentListLoaded, roomExistenceChecked]);
-
   useEffect(() => {
     const fetchStudentList = async () => {
       try {
+        setIsStudentListLoading(true);
         const req = await fetch(
           `${BACK_END_LOCAL_URL}/get_all_students/${classID}`
         );
+        console.log(req);
         const res = await req.json();
         sessionStorage.setItem("student_list", JSON.stringify(res.metadata));
         setStudentList(res.metadata);
@@ -90,14 +82,14 @@ const Room = () => {
         console.error("Error fetching student list:", error);
         toast.error("Failed to load student list");
       } finally {
-        setStudentListLoaded(true);
+        setIsStudentListLoading(false);
       }
     };
 
     const sessionList = JSON.parse(sessionStorage.getItem("student_list"));
     if (sessionList) {
       setStudentList(sessionList);
-      setStudentListLoaded(true);
+      setIsStudentListLoading(false);
     } else {
       fetchStudentList();
     }
@@ -116,12 +108,12 @@ const Room = () => {
       setData(studentData);
       setTeacherId(studentData[0].teacher_id);
       setClassName(studentData[0].className);
-      setRoomDataLoaded(true);
+      setIsRoomDataLoading(false);
     });
 
     socket.on("isRoomExist", (roomExist) => {
       setIsRoomExist(roomExist);
-      setRoomExistenceChecked(true);
+      setIsPageLoading(false);
     });
 
     return () => {
@@ -129,7 +121,14 @@ const Room = () => {
       socket.off("getRoomById");
       socket.off("isRoomExist");
     };
-  }, [roomID, socket]);
+  }, [roomID, socket, testDuration]);
+
+  // Set page loading to false when both room data and student list are loaded
+  useEffect(() => {
+    if (!isRoomDataLoading && !isStudentListLoading) {
+      setIsPageLoading(false);
+    }
+  }, [isRoomDataLoading, isStudentListLoading]);
 
   // Timer effect to update remaining time
   useEffect(() => {
@@ -143,12 +142,14 @@ const Room = () => {
         if (remaining <= 0) {
           setRemainingTime("Exam ended");
           clearInterval(interval);
+          // Kiểm tra nếu đã hết thời gian mà chưa kết thúc bài kiểm tra
           if (!examEnded) {
             toast.warning("Exam time is up!");
           }
         } else {
           const minutes = Math.floor(remaining / 60000);
           const seconds = Math.floor((remaining % 60000) / 1000);
+
           setRemainingTime(`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`);
         }
       }, 1000);
@@ -175,6 +176,7 @@ const Room = () => {
   useEffect(() => {
     if (examEnded) {
       setShowModal(true);
+      // Xóa trạng thái bài kiểm tra khỏi localStorage khi bài kiểm tra kết thúc
       localStorage.removeItem(`exam_state_${roomID}`);
     }
   }, [examEnded, roomID]);
@@ -183,6 +185,7 @@ const Room = () => {
     setForceSubmitLoading((prev) => ({ ...prev, [studentId]: true }));
     try {
       socket.emit("requestForceSubmit", studentId, roomID);
+      // You might want to wait for a confirmation from socket here
       setTimeout(() => {
         setForceSubmitLoading((prev) => ({ ...prev, [studentId]: false }));
       }, 2000);
@@ -207,11 +210,15 @@ const Room = () => {
       const now = new Date();
       const newEndTime = new Date(now.getTime() + testDuration * 60000);
 
+      // Cập nhật state
       setStartTime(now);
       setEndTime(newEndTime);
       setExamStarted(true);
 
+      // Lưu trạng thái vào localStorage
       saveExamState(true, now, newEndTime);
+
+      // Emit the start exam event with the current time
       socket.emit("requestStartExam", roomID, now.toISOString());
 
       toast.success("Exam started successfully!");
@@ -223,12 +230,14 @@ const Room = () => {
     }
   };
 
+  // END EXAM
   const handleEndExam = () => {
     if (!examStarted) {
       toast.error("The Test Has'nt started yet!");
       return;
     }
     const confirm = window.confirm("Are you sure you want to end the exam ? ");
+    // loop through every students to force submit
     if (!confirm) return;
 
     setIsLoading(true);
@@ -237,7 +246,7 @@ const Room = () => {
         handleForceSubmit(d.student_id_db, roomID);
       }
     });
-
+    // create test history here
     const newTestHistory = {
       testName: testName,
       className: className,
@@ -247,7 +256,7 @@ const Room = () => {
       startTime: startTime,
       endTime: endTime,
     };
-
+    //
     setTimeout(async () => {
       try {
         const req = await axios.post(
@@ -264,16 +273,19 @@ const Room = () => {
         setExamEnded(true);
         socket.emit("deleteRoom", roomID);
 
+        // Xóa trạng thái bài kiểm tra khỏi localStorage khi bài kiểm tra kết thúc
         localStorage.removeItem(`exam_state_${roomID}`);
         toast.success("Exam ended successfully!");
       } catch (error) {
         console.log(error);
         setIsLoading(false);
+        console.log(error);
         toast.error("Failed to save test history");
       }
     }, 1000);
   };
 
+  // Function to format date to display time
   const formatTime = (date) => {
     return date
       ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -284,29 +296,43 @@ const Room = () => {
     navigate("/home/test_history");
   };
 
-  // Simple Loading Component
-  const LoadingSpinner = () => (
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+  // Loading Spinner Component
+  const LoadingSpinner = ({ size = "h-5 w-5" }) => (
+    <svg
+      className={`animate-spin ${size} text-current`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
   );
 
-  // Show loading until everything is ready
-  if (!isPageReady) {
+  // Page Loading Screen
+  if (isPageLoading) {
     return (
       <div className="bg-green-400 min-h-screen flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <LoadingSpinner />
-          <p className="mt-4 text-gray-600 font-medium">Loading...</p>
+          <LoadingSpinner size="h-12 w-12" />
+          <p className="mt-4 text-gray-600 font-medium">Loading room data...</p>
         </div>
       </div>
     );
   }
 
-  // Show room not exist if room doesn't exist
-  if (isRoomExist === false) {
-    return <RoomNotExist />;
-  }
-
-  return (
+  return isRoomExist ? (
     <div className="bg-green-400 min-h-screen p-4">
       {/* Header Section */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
@@ -321,10 +347,38 @@ const Room = () => {
               <IoIosArrowRoundBack />
             </button>
             <div>
-              <h1 className="text-xl font-bold">Room: {roomID}</h1>
-              <h1 className="text-xl font-bold">Test: {testName}</h1>
+              <h1 className="text-xl font-bold">
+                Room:{" "}
+                {isRoomDataLoading ? (
+                  <span className="inline-flex items-center">
+                    <LoadingSpinner size="h-4 w-4" />
+                    <span className="ml-2">Loading...</span>
+                  </span>
+                ) : (
+                  roomID
+                )}
+              </h1>
+              <h1 className="text-xl font-bold">
+                Test:{" "}
+                {isRoomDataLoading ? (
+                  <span className="inline-flex items-center">
+                    <LoadingSpinner size="h-4 w-4" />
+                    <span className="ml-2">Loading...</span>
+                  </span>
+                ) : (
+                  testName
+                )}
+              </h1>
+
               <p className="text-gray-600">
-                {data.length - 1} / {studentList.length} Students
+                {isStudentListLoading || isRoomDataLoading ? (
+                  <span className="inline-flex items-center">
+                    <LoadingSpinner size="h-4 w-4" />
+                    <span className="ml-2">Loading students...</span>
+                  </span>
+                ) : (
+                  `${data.length - 1} / ${studentList.length} Students`
+                )}
               </p>
             </div>
           </div>
@@ -333,16 +387,31 @@ const Room = () => {
             <NotificationComponent />
             <p className="font-medium">
               Duration:{" "}
-              <span className="font-bold">{testDuration} minutes</span>
+              <span className="font-bold">
+                {isRoomDataLoading ? (
+                  <span className="inline-flex items-center">
+                    <LoadingSpinner size="h-4 w-4" />
+                  </span>
+                ) : (
+                  `${testDuration} minutes`
+                )}
+              </span>
             </p>
 
             {!examStarted ? (
               <button
                 onClick={handleStartExam}
-                disabled={isStartingExam}
+                disabled={isStartingExam || isRoomDataLoading}
                 className="mt-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2 px-4 rounded-md transition-colors font-medium flex items-center justify-center min-w-[120px]"
               >
-                {isStartingExam ? "Starting..." : "Start Exam"}
+                {isStartingExam ? (
+                  <>
+                    <LoadingSpinner size="h-4 w-4" />
+                    <span className="ml-2">Starting...</span>
+                  </>
+                ) : (
+                  "Start Exam"
+                )}
               </button>
             ) : (
               <div className="mt-2 p-3 bg-green-100 rounded-md">
@@ -356,11 +425,20 @@ const Room = () => {
               </div>
             )}
             <button
-              onClick={handleEndExam}
+              onClick={() => {
+                handleEndExam();
+              }}
               disabled={isLoading}
               className="mt-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2 px-5 rounded-md transition-colors font-medium flex items-center justify-center min-w-[120px]"
             >
-              {isLoading ? "Processing..." : "End Exam"}
+              {isLoading ? (
+                <>
+                  <LoadingSpinner size="h-4 w-4" />
+                  <span className="ml-2">Processing...</span>
+                </>
+              ) : (
+                "End Exam"
+              )}
             </button>
           </div>
         </div>
@@ -381,59 +459,76 @@ const Room = () => {
           </div>
 
           {/* Table Body */}
-          {data.map((student, index) => {
-            if (student.teacher_id) return null;
-            return (
-              <div
-                key={index}
-                className="grid grid-cols-7 border-b text-center p-3 hover:bg-green-50"
-              >
-                <div className="col-span-1 truncate">{student.name}</div>
-                <div className="col-span-1 truncate">{student.student_id}</div>
-                <div
-                  className={`col-span-1 ${
-                    student.state === "joined"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  } font-medium`}
-                >
-                  {student.state}
-                </div>
-                <div className="col-span-1">{student.current_question}</div>
-                <div className="col-span-1 text-red-500 font-medium">
-                  {student.number_of_violates} times
-                </div>
-                <div
-                  className={`col-span-1 ${
-                    student.status === "Not Submitted"
-                      ? "text-red-500"
-                      : "text-green-500"
-                  } font-medium`}
-                >
-                  {student.status}
-                </div>
-                <div className="col-span-1">
-                  <button
-                    onClick={() =>
-                      handleForceSubmit(student.student_id_db, roomID)
-                    }
-                    disabled={forceSubmitLoading[student.student_id_db]}
-                    className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-2 py-1 rounded text-sm transition-colors min-w-[100px]"
-                  >
-                    {forceSubmitLoading[student.student_id_db]
-                      ? "..."
-                      : "Force Submit"}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Empty state */}
-          {(!data.length || (data.length === 1 && data[0].teacher_id)) && (
-            <div className="p-8 text-center text-gray-500">
-              No students have joined this room yet.
+          {isRoomDataLoading ? (
+            <div className="p-8 text-center">
+              <LoadingSpinner size="h-8 w-8" />
+              <p className="mt-4 text-gray-600">Loading student data...</p>
             </div>
+          ) : (
+            <>
+              {data.map((student, index) => {
+                // exclude the teacher
+                if (student.teacher_id) return null;
+                return (
+                  <div
+                    key={index}
+                    className="grid grid-cols-7 border-b text-center p-3 hover:bg-green-50"
+                  >
+                    <div className="col-span-1 truncate">{student.name}</div>
+                    <div className="col-span-1 truncate">
+                      {student.student_id}
+                    </div>
+                    <div
+                      className={`col-span-1 ${
+                        student.state === "joined"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      } font-medium`}
+                    >
+                      {student.state}
+                    </div>
+                    <div className="col-span-1">{student.current_question}</div>
+                    <div className="col-span-1 text-red-500 font-medium">
+                      {student.number_of_violates} times
+                    </div>
+                    <div
+                      className={`col-span-1 ${
+                        student.status === "Not Submitted"
+                          ? "text-red-500"
+                          : "text-green-500"
+                      } font-medium`}
+                    >
+                      {student.status}
+                    </div>
+                    <div className="col-span-1">
+                      <button
+                        onClick={() =>
+                          handleForceSubmit(student.student_id_db, roomID)
+                        }
+                        disabled={forceSubmitLoading[student.student_id_db]}
+                        className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-2 py-1 rounded text-sm transition-colors flex items-center justify-center min-w-[100px]"
+                      >
+                        {forceSubmitLoading[student.student_id_db] ? (
+                          <>
+                            <LoadingSpinner size="h-3 w-3" />
+                            <span className="ml-1">...</span>
+                          </>
+                        ) : (
+                          "Force Submit"
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Empty state if no students */}
+              {(!data.length || (data.length === 1 && data[0].teacher_id)) && (
+                <div className="p-8 text-center text-gray-500">
+                  No students have joined this room yet.
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -459,6 +554,8 @@ const Room = () => {
         </div>
       )}
     </div>
+  ) : (
+    <RoomNotExist />
   );
 };
 
