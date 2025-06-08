@@ -22,6 +22,11 @@ const TestEdit = () => {
   const [timeLimit, setTimeLimit] = useState(0);
   const [selectedSubject, setSelectedSubject] = useState("");
 
+  // Search states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   useEffect(() => {
     const fetchTest = async () => {
       const req = await fetch(`${BACK_END_LOCAL_URL}/tests/${testId}`);
@@ -50,6 +55,31 @@ const TestEdit = () => {
     };
     fetchTest();
   }, [testId, questionLength]);
+
+  // Filter questions based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredQuestions(questions);
+      setIsSearching(false);
+    } else {
+      setIsSearching(true);
+      const filtered = questions.filter((question) => {
+        const questionText = question.text.toLowerCase();
+        const searchLower = searchTerm.toLowerCase();
+
+        // Search in question text
+        const matchesQuestion = questionText.includes(searchLower);
+
+        // Search in answer options
+        const matchesOptions = question.options.some((option) =>
+          option.text.toLowerCase().includes(searchLower)
+        );
+
+        return matchesQuestion || matchesOptions;
+      });
+      setFilteredQuestions(filtered);
+    }
+  }, [searchTerm, questions]);
 
   const handleSaveTest = async () => {
     const req = await fetch(`${BACK_END_LOCAL_URL}/tests/${testId}`, {
@@ -81,6 +111,19 @@ const TestEdit = () => {
     console.log(res);
     setQuestionLength((l) => l - 1);
   };
+
+  const handleSearch = () => {
+    // The search is already handled by useEffect
+    // This function can be used for additional search logic if needed
+    console.log("Searching for:", searchTerm);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
+
+  // Get questions to display (filtered or all)
+  const questionsToDisplay = searchTerm.trim() ? filteredQuestions : questions;
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
@@ -160,91 +203,143 @@ const TestEdit = () => {
           {/* Search bar */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
             <div className="flex flex-col md:flex-row justify-between p-4">
-              <input
-                className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 w-full md:w-2/3 mb-3 md:mb-0"
-                type="text"
-                placeholder="Search question in Quizzes Library"
-              />
-              <button className="flex items-center justify-center bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md px-4 py-2 transition-colors w-full md:w-auto">
+              <div className="relative w-full md:w-2/3 mb-3 md:mb-0">
+                <input
+                  className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 w-full pr-8"
+                  type="text"
+                  placeholder="Search question in current test"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                />
+                {searchTerm && (
+                  <button
+                    onClick={clearSearch}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <IoMdClose />
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={handleSearch}
+                className="flex items-center justify-center bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md px-4 py-2 transition-colors w-full md:w-auto"
+              >
                 <CiSearch className="mr-2 text-lg" />
                 Search
               </button>
             </div>
+
+            {/* Search results indicator */}
+            {isSearching && (
+              <div className="px-4 pb-4">
+                <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded-md">
+                  {filteredQuestions.length > 0
+                    ? `Found ${filteredQuestions.length} question(s) matching "${searchTerm}"`
+                    : `No questions found matching "${searchTerm}"`}
+                  <button
+                    onClick={clearSearch}
+                    className="ml-2 text-green-600 hover:text-green-700 underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Questions section */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-medium text-lg">Questions</h2>
+              <h2 className="font-medium text-lg">
+                {isSearching ? `Search Results` : `Questions`}
+              </h2>
               <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-                {questions.length} questions
+                {isSearching
+                  ? `${filteredQuestions.length} of ${questions.length} questions`
+                  : `${questions.length} questions`}
               </span>
             </div>
 
             {questionLength > 0 ? (
-              <div className="space-y-4">
-                {questions.map((question, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-200 rounded-lg bg-gray-50 overflow-hidden hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex justify-between items-center bg-white p-3 border-b border-gray-200">
-                      <button className="p-2 rounded hover:bg-gray-100 cursor-move">
-                        <IoIosMove className="text-gray-500" />
-                      </button>
-                      <div className="flex">
-                        <Link
-                          to={`/update-question/${question._id}/${testId}`}
-                          className="flex items-center justify-center px-3 py-1 border border-gray-200 rounded-md mr-2 hover:bg-gray-100 transition-colors"
-                        >
-                          <CiEdit className="mr-1 text-lg" />
-                          <span className="text-sm">Edit</span>
-                        </Link>
-                        <button
-                          onClick={() => handleDeleteQuestion(question._id)}
-                          className="flex items-center justify-center px-3 py-1 border border-gray-200 rounded-md hover:bg-gray-100 hover:text-red-500 transition-colors"
-                        >
-                          <CiTrash className="text-lg" />
+              questionsToDisplay.length > 0 ? (
+                <div className="space-y-4">
+                  {questionsToDisplay.map((question, index) => (
+                    <div
+                      key={question._id || index}
+                      className="border border-gray-200 rounded-lg bg-gray-50 overflow-hidden hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-center bg-white p-3 border-b border-gray-200">
+                        <button className="p-2 rounded hover:bg-gray-100 cursor-move">
+                          <IoIosMove className="text-gray-500" />
                         </button>
-                      </div>
-                    </div>
-
-                    <div className="p-4">
-                      <div className="mb-3">
-                        <div className="flex items-start mb-1">
-                          <span className="text-sm font-medium text-gray-600 mr-2 mt-0.5">
-                            Question:
-                          </span>
-                          <p className="text-sm">{question.text}</p>
+                        <div className="flex">
+                          <Link
+                            to={`/update-question/${question._id}/${testId}`}
+                            className="flex items-center justify-center px-3 py-1 border border-gray-200 rounded-md mr-2 hover:bg-gray-100 transition-colors"
+                          >
+                            <CiEdit className="mr-1 text-lg" />
+                            <span className="text-sm">Edit</span>
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteQuestion(question._id)}
+                            className="flex items-center justify-center px-3 py-1 border border-gray-200 rounded-md hover:bg-gray-100 hover:text-red-500 transition-colors"
+                          >
+                            <CiTrash className="text-lg" />
+                          </button>
                         </div>
                       </div>
 
-                      <div className="mt-4">
-                        <p className="text-sm font-medium text-gray-600 mb-2">
-                          Answer choices:
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {question.options.map((option, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center p-2 rounded-md bg-white border border-gray-100"
-                            >
-                              {option.isCorrect ? (
-                                <GoCheck className="text-green-600 mr-2 flex-shrink-0" />
-                              ) : (
-                                <IoMdClose className="text-red-500 mr-2 flex-shrink-0" />
-                              )}
-                              <p className="text-sm overflow-hidden text-ellipsis">
-                                {option.text}
-                              </p>
-                            </div>
-                          ))}
+                      <div className="p-4">
+                        <div className="mb-3">
+                          <div className="flex items-start mb-1">
+                            <span className="text-sm font-medium text-gray-600 mr-2 mt-0.5">
+                              Question:
+                            </span>
+                            <p className="text-sm">{question.text}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4">
+                          <p className="text-sm font-medium text-gray-600 mb-2">
+                            Answer choices:
+                          </p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {question.options.map((option, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center p-2 rounded-md bg-white border border-gray-100"
+                              >
+                                {option.isCorrect ? (
+                                  <GoCheck className="text-green-600 mr-2 flex-shrink-0" />
+                                ) : (
+                                  <IoMdClose className="text-red-500 mr-2 flex-shrink-0" />
+                                )}
+                                <p className="text-sm overflow-hidden text-ellipsis">
+                                  {option.text}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10 text-gray-500">
+                  <p>No questions match your search</p>
+                  <p className="text-sm mt-2">
+                    Try different keywords or clear your search
+                  </p>
+                  <button
+                    onClick={clearSearch}
+                    className="mt-3 text-green-600 hover:text-green-700 underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              )
             ) : (
               <div className="text-center py-10 text-gray-500">
                 <p>No questions added yet</p>

@@ -31,6 +31,10 @@ const TeacherClassDetails = () => {
 
   const [studentLength, setStudentLength] = useState(0);
   const [students, setStudents] = useState([]);
+
+  // Simple loading state
+  const [isLoading, setIsLoading] = useState(true);
+
   const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
   const BACK_END_SOCKET_URL = import.meta.env.BACK_END_SOCKET_URL;
 
@@ -210,34 +214,38 @@ const TeacherClassDetails = () => {
   };
 
   useEffect(() => {
-    const fetchClass = async () => {
+    const fetchData = async () => {
       try {
-        const req = await fetch(`${BACK_END_LOCAL_URL}/classes/${classId}`);
-        const res = await req.json();
-        setClass(res.metadata);
-        setClassName(res.metadata.name);
+        setIsLoading(true);
 
-        // Use the extracted function for student fetching
+        // Fetch class data
+        const classReq = await fetch(
+          `${BACK_END_LOCAL_URL}/classes/${classId}`
+        );
+        const classRes = await classReq.json();
+        setClass(classRes.metadata);
+        setClassName(classRes.metadata.name);
+
+        // Fetch tests
+        const testsReq = await fetch(
+          `${BACK_END_LOCAL_URL}/tests-find/${userID}`
+        );
+        const testsRes = await testsReq.json();
+        setTests(testsRes.metadata.foundTests);
+
+        // Fetch students
         await fetchStudentList();
       } catch (error) {
-        console.error("Error fetching class data:", error);
+        console.error("Error fetching data:", error);
         toast.error("Failed to load class information");
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    const fetchTestByTeacherID = async () => {
-      try {
-        const req = await fetch(`${BACK_END_LOCAL_URL}/tests-find/${userID}`);
-        const res = await req.json();
-        setTests(res.metadata.foundTests);
-      } catch (error) {
-        console.error("Error fetching tests:", error);
-        toast.error("Failed to load tests");
-      }
-    };
-
-    fetchClass();
-    fetchTestByTeacherID();
+    if (classId && userID) {
+      fetchData();
+    }
   }, [classId, userID]);
 
   useEffect(() => {
@@ -289,6 +297,18 @@ const TeacherClassDetails = () => {
     }
     return "Default Test Title";
   };
+
+  // Show loading spinner while data is being fetched
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading class details...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
