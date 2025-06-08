@@ -20,7 +20,7 @@ const TestEdit = () => {
   const [questions, setQuestions] = useState([]);
   const [questionLength, setQuestionLength] = useState(0);
   const [timeLimit, setTimeLimit] = useState(0);
-  // State for managing modals
+  const [selectedSubject, setSelectedSubject] = useState("");
 
   useEffect(() => {
     const fetchTest = async () => {
@@ -30,6 +30,7 @@ const TestEdit = () => {
       setTest(testFound.metadata);
       setNewTitle(testFound.metadata.title);
       setTimeLimit(testFound.metadata.timeLimit);
+      setSelectedSubject(testFound.metadata.subject || "");
       // loop over the questions in the test
       const questionPromises = testFound.metadata.questions.map(
         async (questionID) => {
@@ -56,7 +57,11 @@ const TestEdit = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ timeLimit, title: newTitle }),
+      body: JSON.stringify({
+        timeLimit,
+        title: newTitle,
+        subject: selectedSubject,
+      }),
     });
     console.log(req.status);
     if (req.status !== 200) {
@@ -79,7 +84,6 @@ const TestEdit = () => {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
-      {/* Header with back button, title input and save button */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <div className="flex items-center w-full md:w-auto">
           <button
@@ -126,6 +130,27 @@ const TestEdit = () => {
               <option value="60">60 minutes</option>
               <option value="90">90 minutes</option>
               <option value="150">150 minutes</option>
+            </select>
+          </div>
+
+          {/* Subject selector */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <div className="flex items-center mb-2">
+              <h3 className="font-medium">Subject</h3>
+            </div>
+            <select
+              onChange={(e) => setSelectedSubject(e.target.value)}
+              value={selectedSubject}
+              className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="">Select Subject</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="Physics">Physics</option>
+              <option value="Biology">Biology</option>
+              <option value="Literature">Literature</option>
+              <option value="English">English</option>
+              <option value="History">History</option>
             </select>
           </div>
         </div>

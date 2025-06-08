@@ -1,13 +1,14 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify"; // hoặc thư viện toast khác bạn đang dùng
+const BACK_END_LOCAL_URL = import.meta.env.VITE_LOCAL_API_CALL_URL;
 
 // API function để kiểm tra user active
 const checkUserActive = async (userID) => {
-  console.log(userID)
+  console.log(userID);
   try {
     const response = await fetch(
-      `https://backend-quizz-deploy.onrender.com/api/v1/users/check-active/${userID}`,
+      `${BACK_END_LOCAL_URL}/users/check-active/${userID}`,
       {
         method: "GET",
         headers: {
@@ -24,10 +25,10 @@ const checkUserActive = async (userID) => {
 
     const data = await response.json();
     console.log(data);
-    return data.isActive; // Giả sử API trả về { isActive: true/false }
+    return data.isActive;
   } catch (error) {
     console.error("Error checking user active status:", error);
-    return false; // Mặc định là false nếu có lỗi
+    return false;
   }
 };
 
@@ -46,7 +47,7 @@ export default function ProtectedLayout() {
     localStorage.removeItem("role");
     localStorage.removeItem("userID");
     // Xóa thêm các thông tin khác nếu có
-    toast.error("Bạn đã bị ban, vui lòng liên hệ admin");
+    toast.error("You've been banned! Please contact admin");
     navigate("/login");
   };
 
