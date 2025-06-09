@@ -164,7 +164,7 @@ const Library = () => {
                           {test.questions.length} questions
                         </span>
                         <span className="px-2 py-1 bg-green-100 rounded text-xs font-medium text-green-800">
-                          Mathematics
+                          {test?.subject}
                         </span>
                       </div>
 
