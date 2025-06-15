@@ -290,7 +290,7 @@ const TeacherClassDetails = () => {
       setSelectedTestName(selectedTestObj.title);
       setSelectedTestSubject(selectedTest.subject);
     }
-    console.log(selectedTestObj);
+    console.log("subject", selectedTest.subject);
   };
 
   const findTestById = (id) => {
