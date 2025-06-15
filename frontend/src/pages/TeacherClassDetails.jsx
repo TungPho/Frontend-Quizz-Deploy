@@ -285,6 +285,7 @@ const TeacherClassDetails = () => {
 
     // Find the test name for displaying in the UI
     const selectedTestObj = tests.find((test) => test._id === testId);
+    console.log("obj", selectedTestObj);
     if (selectedTestObj) {
       setSelectedTestDurtaion(selectedTestObj.timeLimit);
       setSelectedTestName(selectedTestObj.title);
