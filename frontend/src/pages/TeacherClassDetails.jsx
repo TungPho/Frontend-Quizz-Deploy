@@ -289,9 +289,9 @@ const TeacherClassDetails = () => {
     if (selectedTestObj) {
       setSelectedTestDurtaion(selectedTestObj.timeLimit);
       setSelectedTestName(selectedTestObj.title);
-      setSelectedTestSubject(selectedTest.subject);
+      setSelectedTestSubject(selectedTestObj.subject);
     }
-    console.log("subject", selectedTest.subject);
+    console.log("subject", selectedTestObj.subject);
   };
 
   const findTestById = (id) => {
