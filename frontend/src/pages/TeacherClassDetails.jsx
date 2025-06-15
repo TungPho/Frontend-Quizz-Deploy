@@ -297,7 +297,7 @@ const TeacherClassDetails = () => {
   const findTestById = (id) => {
     for (let test of tests) {
       if (test._id === id) {
-        return test.title;
+        return test;
       }
     }
     return "Default Test Title";
@@ -419,7 +419,8 @@ const TeacherClassDetails = () => {
                         <span className="font-semibold w-20">Test:</span>
                         <span className="flex items-center">
                           <RiTestTubeFill className="mr-1 text-green-500" />
-                          {findTestById(room[1][0].test_id) || "Selected Test"}
+                          {findTestById(room[1][0].test_id).title ||
+                            "Selected Test"}
                         </span>
                       </div>
                     </div>
