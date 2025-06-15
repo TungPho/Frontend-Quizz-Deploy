@@ -28,6 +28,7 @@ const TeacherClassDetails = () => {
 
   const [selectedTestName, setSelectedTestName] = useState("");
   const [selectedTestDurtaion, setSelectedTestDurtaion] = useState(0);
+  const [selectedTestSubject, setSelectedTestSubject] = useState("");
 
   const [studentLength, setStudentLength] = useState(0);
   const [students, setStudents] = useState([]);
@@ -209,7 +210,8 @@ const TeacherClassDetails = () => {
       selectedTest,
       classId,
       selectedTestName,
-      selectedTestDurtaion
+      selectedTestDurtaion,
+      selectedTestSubject
     );
   };
 
@@ -286,7 +288,9 @@ const TeacherClassDetails = () => {
     if (selectedTestObj) {
       setSelectedTestDurtaion(selectedTestObj.timeLimit);
       setSelectedTestName(selectedTestObj.title);
+      setSelectedTestSubject(selectedTest.subject);
     }
+    console.log(selectedTestObj);
   };
 
   const findTestById = (id) => {

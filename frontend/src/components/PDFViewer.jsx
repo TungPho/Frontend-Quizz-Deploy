@@ -34,14 +34,6 @@ const PDFViewer = ({ pdfUrl }) => {
     );
   };
 
-  const zoomIn = () => {
-    setScale((prevScale) => Math.min(prevScale + 0.2, 3.0));
-  };
-
-  const zoomOut = () => {
-    setScale((prevScale) => Math.max(prevScale - 0.2, 0.5));
-  };
-
   if (!pdfUrl) {
     return (
       <div className="flex items-center justify-center w-full ml-2  bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
@@ -84,29 +76,9 @@ const PDFViewer = ({ pdfUrl }) => {
         </button>
 
         <div className="flex items-center bg-white rounded-md overflow-hidden">
-          <button
-            onClick={zoomOut}
-            disabled={loading}
-            className={`w-8 h-8 flex items-center justify-center text-lg font-bold ${
-              loading ? "text-gray-400" : "text-green-600 hover:bg-green-100"
-            }`}
-          >
-            -
-          </button>
-
           <span className="px-2 text-sm text-green-800">
             {Math.round(scale * 100)}%
           </span>
-
-          <button
-            onClick={zoomIn}
-            disabled={loading}
-            className={`w-8 h-8 flex items-center justify-center text-lg font-bold ${
-              loading ? "text-gray-400" : "text-green-600 hover:bg-green-100"
-            }`}
-          >
-            +
-          </button>
         </div>
       </div>
 
