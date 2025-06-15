@@ -422,6 +422,11 @@ const TeacherClassDetails = () => {
                           {findTestById(room[1][0].test_id).title ||
                             "Selected Test"}
                         </span>
+                        <span className="flex items-center">
+                          <RiTestTubeFill className="mr-1 text-green-500" />
+                          {findTestById(room[1][0].test_id).subject ||
+                            "Selected subject"}
+                        </span>
                       </div>
                     </div>
 
